@@ -1,8 +1,16 @@
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
-const PDFDocument = require("pdfkit");
+const pdf = require("html-pdf");
 const fs = require("fs");
 dotenv.config();
+
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.nodeMailer_User,
+//     pass: process.env.nodeMailer_Pass,
+//   },
+// });
 
 const transporter = nodemailer.createTransport({
   host: "smtp.hostinger.com", // Hostinger SMTP server address
@@ -14,59 +22,41 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function generatePDF(content) {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
-    const filename = "attachment.pdf";
-    const stream = fs.createWriteStream(filename);
-
-    doc.pipe(stream);
-    doc.text(content);
-
-    stream.on("finish", () => {
-      resolve(filename);
-    });
-
-    doc.end();
-  });
-}
-
 async function sendMailWithPDF(toEmail, subject, content) {
-  try {
-    const filename = await generatePDF(content);
+  const pdfOptions = { format: "Letter" };
 
-    const mailOptions = {
-      from: process.env.nodeMailer_User,
-      to: toEmail,
-      subject: subject,
-      html: content,
-      attachments: [
-        {
-          filename: "attachment.pdf",
-          path: filename,
-        },
-      ],
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log("Error occurred:", error);
-      } else {
-        console.log("Email sent:", info.response);
+  await pdf
+    .create(content, pdfOptions)
+    .toFile(__dirname + "/attachment.pdf", (err, attachment) => {
+      if (err) {
+        console.error("Error creating PDF:", err);
+        return;
       }
 
-      // Delete the temporary PDF file after sending the email
-      fs.unlink(filename, (err) => {
-        if (err) {
-          console.error("Error deleting PDF file:", err);
+      const mailOptions = {
+        from: process.env.nodeMailer_User,
+        to: toEmail,
+        subject: subject,
+        html: content,
+        attachments: [
+          {
+            filename: "attachment.pdf",
+            path: attachment.filename,
+            encoding: "base64",
+          },
+        ],
+      };
+
+      transporter.sendMail(mailOptions, async (error, info) => {
+        if (error) {
+          console.log("Error occurred:", error);
         } else {
-          console.log("PDF file deleted");
+          console.log("Email sent:", info.response);
+          // Delete the temporary PDF file after sending the email
+          await fs.unlinkSync(attachment.filename);
         }
       });
     });
-  } catch (error) {
-    console.error("Error generating PDF:", error);
-  }
 }
 
 module.exports = { sendMailWithPDF };
