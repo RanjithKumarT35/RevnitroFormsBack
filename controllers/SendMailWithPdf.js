@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
-const pdf = require("html-pdf");
+const puppeteer = require("puppeteer");
 const fs = require("fs");
 dotenv.config();
 
@@ -15,41 +15,33 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendMailWithPDF(toEmail, subject, content) {
-  const pdfOptions = { format: "Letter" };
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
 
-  // Directory path where you want to save the PDF file
-  const directoryPath = __dirname + "/";
+  // Set content to the page
+  await page.setContent(content);
 
-  // Function to create the directory if it doesn't exist
-  const createDirectoryIfNotExists = (directory) => {
-    if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory, { recursive: true });
-    }
+  // Generate PDF from the page content
+  const pdfBuffer = await page.pdf({
+    format: "A4", // Set the PDF format
+    printBackground: true // Print background graphics
+  });
+
+  // Close the browser
+  await browser.close();
+
+  const mailOptions = {
+    from: process.env.nodeMailer_User,
+    to: toEmail,
+    subject: subject,
+    html: content,
+    attachments: [
+      {
+        filename: "attachment.pdf",
+        content: pdfBuffer, // Attach the PDF buffer
+      },
+    ],
   };
-
-  // Create the directory if it doesn't exist
-  createDirectoryIfNotExists(directoryPath);
-
-  await pdf.create(content, pdfOptions).toFile(directoryPath + "attachment.pdf", (err, attachment) => {
-    if (err) {
-      console.error("Error creating PDF:", err);
-      return;
-    }
-
-    const mailOptions = {
-      from: process.env.nodeMailer_User,
-      to: toEmail,
-      subject: subject,
-      html: content,
-      attachments: [
-        {
-          filename: "attachment.pdf",
-          path: attachment.filename,
-          encoding: "base64",
-        },
-      ],
-    };
-
     transporter.sendMail(mailOptions, async (error, info) => {
       if (error) {
         console.log("Error occurred:", error);
