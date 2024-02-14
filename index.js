@@ -18,7 +18,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json({ limit: "20mb" }));
 app.use(bodyParser.json({ limit: "20mb" }));
-app.use(cors({ origin: [`https://forms.revnitro.com/`], credentials: true }));
+app.use(cors({ origin: [`https://forms.revnitro.com`], credentials: true }));
 app.use("/uploads", express.static("uploads"));
 app.use("/car", CarConsult);
 app.use("/bike", BikeConsult);
