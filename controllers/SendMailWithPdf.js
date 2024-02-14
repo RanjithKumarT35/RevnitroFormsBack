@@ -5,7 +5,9 @@ const fs = require("fs");
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.hostinger.com", // Hostinger SMTP server address
+  port: 587, // Port for non-secure connection, use 465 for secure connection
+  secure: false, // Set to true for secure connection (use port 465)
   auth: {
     user: process.env.nodeMailer_User,
     pass: process.env.nodeMailer_Pass,
