@@ -80,6 +80,7 @@ router.post("/", async (req, res) => {
     await sendMailWithPDF(process.env.nodeMailer_User, Subject, content);
     res.status(200).send(true);
   } catch (err) {
+    console.log(err)
     res.status(500).send(false);
   }
 });
