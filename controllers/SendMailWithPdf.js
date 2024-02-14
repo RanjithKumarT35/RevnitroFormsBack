@@ -1,7 +1,6 @@
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const puppeteer = require("puppeteer");
-const fs = require("fs");
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
@@ -24,7 +23,7 @@ async function sendMailWithPDF(toEmail, subject, content) {
   // Generate PDF from the page content
   const pdfBuffer = await page.pdf({
     format: "A4", // Set the PDF format
-    printBackground: true // Print background graphics
+    printBackground: true, // Print background graphics
   });
 
   // Close the browser
@@ -42,15 +41,13 @@ async function sendMailWithPDF(toEmail, subject, content) {
       },
     ],
   };
-    transporter.sendMail(mailOptions, async (error, info) => {
-      if (error) {
-        console.log("Error occurred:", error);
-      } else {
-        console.log("Email sent:", info.response);
-        // Delete the temporary PDF file after sending the email
-        await fs.unlinkSync(attachment.filename);
-      }
-    });
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log("Error occurred:", error);
+    } else {
+      console.log("Email sent:", info.response);
+    }
   });
 }
 
