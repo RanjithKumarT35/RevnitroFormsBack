@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const pdf = require("html-pdf");
 const fs = require("fs");
 dotenv.config();
-process.env.OPENSSL_CONF = '/path/to/your/openssl.cnf';
+process.env.OPENSSL_CONF = './openssl.cnf';  //  '/path/to/your'
 // const transporter = nodemailer.createTransport({
 //   service: "gmail",
 //   auth: {
