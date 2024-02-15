@@ -23,7 +23,10 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendMailWithPDF(toEmail, subject, content) {
-  const pdfOptions = { format: "Letter" };
+  const pdfOptions = {
+  format: "Letter",
+  "ssl-protocol": "any", // or "tlsv1" or "sslv3" depending on your requirements
+};
 
   await pdf
     .create(content, pdfOptions)
