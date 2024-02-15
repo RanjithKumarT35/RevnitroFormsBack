@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const pdf = require("html-pdf");
 const fs = require("fs");
 dotenv.config();
-
+process.env.OPENSSL_CONF = '/path/to/your/openssl.cnf';
 // const transporter = nodemailer.createTransport({
 //   service: "gmail",
 //   auth: {
@@ -23,10 +23,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendMailWithPDF(toEmail, subject, content) {
-  const pdfOptions = {
-  format: "Letter",
-  "ssl-protocol": "any", // or "tlsv1" or "sslv3" depending on your requirements
-};
+  const pdfOptions = { format: "Letter" };
 
   await pdf
     .create(content, pdfOptions)
