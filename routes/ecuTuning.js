@@ -68,10 +68,6 @@ router.post("/", async (req, res) => {
           <div class="logo-container">
           <p>With Regards,</p>
           <p>Team RevNitro</p>
-          <img
-            src="https://revnitro.com/images/Group%2026.png"
-            alt="RevNitro Logo"
-          />
           </div>
         </div>
       </body>
