@@ -20,6 +20,10 @@ app.use(express.json({ limit: "20mb" }));
 app.use(bodyParser.json({ limit: "20mb" }));
 app.use(cors({ origin: [`https://forms.revnitro.com`], credentials: true }));
 app.use("/uploads", express.static("uploads"));
+app.get("/", (req, res) => {
+  console.log("start");
+  res.status(200).send(true);
+});
 app.use("/car", CarConsult);
 app.use("/bike", BikeConsult);
 app.use("/carService", CarService);
